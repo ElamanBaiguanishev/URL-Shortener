@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/url-shortener
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:5.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: [ "npm", "test", "--", "--detectOpenHandles" ]
+    environment:
+      - NODE_ENV=test
+      - MONGO_URI=mongodb://mongo:27017/url-shortener-test
+    depends_on:
+      - mongo
+
+volumes:
+  mongo-data:
