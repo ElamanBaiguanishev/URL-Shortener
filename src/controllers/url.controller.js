@@ -1,7 +1,10 @@
 const URLService = require("../services/url.service");
 const AppError = require("../utils/errors");
 
+urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+
 class URLController {
+
     static async getAllLinks(req, res, next) {
         try {
             const urls = await URLService.getAllUrls();
@@ -16,6 +19,10 @@ class URLController {
             const { originalUrl, alias, expiresAt } = req.body;
             if (!originalUrl) {
                 throw new AppError("Original URL is required", 400);
+            }
+
+            if (!urlRegex.test(originalUrl)) {
+                throw new AppError("Invalid URL format. Make sure it starts with http:// or https://", 400);
             }
 
             const url = await URLService.createShortUrl(originalUrl, alias, expiresAt);
